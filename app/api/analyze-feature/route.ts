@@ -1,12 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateText } from "ai"
-import { openai } from "@ai-sdk/openai"
+import { streamObject } from "ai"
+import { google } from "@ai-sdk/google"
+import { z } from "zod"
 
 export async function POST(req: NextRequest) {
   const { description, language } = await req.json()
 
-  if (!process.env.OPENAI_API_KEY) {
-    return NextResponse.json({ error: "Falta la variable OPENAI_API_KEY en el entorno del servidor." }, { status: 500 })
+  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    return NextResponse.json({ error: "Falta la variable GOOGLE_GENERATIVE_AI_API_KEY en el entorno del servidor." }, { status: 500 })
   }
 
   try {
@@ -33,13 +34,17 @@ Responde SOLO con un JSON en este formato exacto:
   "reasoning": "[breve explicación de 1-2 líneas]"
 }`
 
-    const { text } = await generateText({
-      model: openai("gpt-4o"),
+    const result = await streamObject({
+      model: google("models/gemini-1.5-flash"),
       prompt,
+      schema: z.object({
+        estimatedPrice: z.number(),
+        estimatedHours: z.number(),
+        reasoning: z.string(),
+      }),
     })
 
-    const result = JSON.parse(text)
-    return NextResponse.json(result)
+    return result.toTextStreamResponse()
   } catch (e) {
     console.error("AI error:", e)
     return NextResponse.json({ error: "No se pudo analizar la funcionalidad con IA." }, { status: 500 })

@@ -1,13 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { generateText } from "ai"
-import { openai } from "@ai-sdk/openai"
+import { streamObject } from 'ai';
+
+import { google } from "@ai-sdk/google"
+import { z } from "zod"
 
 export async function POST(req: NextRequest) {
   const { description, language } = await req.json()
-
-  if (!process.env.OPENAI_API_KEY) {
-    return NextResponse.json({ error: "Falta la variable OPENAI_API_KEY en el entorno del servidor." }, { status: 500 })
-  }
 
   try {
     const prompt =
@@ -57,13 +55,16 @@ Descripción de la aplicación: "${description}"
 Responde SOLO con un array JSON de IDs de servicios que serían relevantes para este proyecto:
 ["service-id-1", "service-id-2", ...]`
 
-    const { text } = await generateText({
-      model: openai("gpt-4o"),
+    // Usar streamText para devolver el stream directamente
+    const result = await streamObject({
+      model: google("models/gemini-1.5-flash"),
       prompt,
+      schema: z.object({
+        suggestedServiceIds: z.array(z.string()),
+      }),
     })
-
-    const suggestedServiceIds = JSON.parse(text)
-    return NextResponse.json({ suggestedServiceIds })
+    // Usar el método correcto para devolver el stream
+    return result.toTextStreamResponse();
   } catch (e) {
     console.error("AI error:", e)
     return NextResponse.json({ error: "No se pudo analizar la aplicación con IA." }, { status: 500 })

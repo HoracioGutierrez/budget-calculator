@@ -34,6 +34,17 @@ import {
   Globe,
   Sparkles,
 } from "lucide-react"
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { applyPlugin } from 'jspdf-autotable'
+
+applyPlugin(jsPDF)
+
+declare module "jspdf" {
+  interface jsPDF {
+    autoTable: (options: any) => jsPDF
+  }
+}
 
 interface TaskDetail {
   task: string
@@ -61,6 +72,15 @@ interface CustomFeature {
   description: string
   estimatedPrice: number
   estimatedHours: number
+  reasoning: string
+}
+
+interface Sprint {
+  name: string;
+  estimatedHours: number;
+  estimatedPrice: number;
+  description: string;
+  features?: string[]; // Added for sprint distribution
 }
 
 type Language = "es" | "en"
@@ -110,6 +130,23 @@ const translations = {
     suggestedServices: "Servicios Sugeridos por IA",
     addSuggested: "Agregar Sugeridos",
     clearSuggestions: "Limpiar Sugerencias",
+    sprints: "Sprints AI",
+    generateSprints: "Generar Sprints",
+    sprintsGenerated: "Sprints Generados:",
+    sprintDescription: "Descripción:",
+    sprintPlaceholder: "Descripción para el sprint...",
+    sprintHours: "Horas Estimadas:",
+    sprintPrice: "Precio Estimado:",
+    sprintDescriptionPlaceholder: "Descripción para el precio...",
+    sprintHoursPlaceholder: "Horas estimadas para el sprint...",
+    sprintPricePlaceholder: "Precio estimado para el sprint...",
+    sprintAdd: "Agregar Sprint",
+    sprintRemove: "Eliminar Sprint",
+    sprintTotal: "Total de Sprints:",
+    sprintTotalHours: "Total de Horas de Sprints:",
+    sprintTotalPrice: "Total de Precio de Sprints:",
+    sprintTotalHoursLabel: "Total de Horas de Sprints:",
+    sprintTotalPriceLabel: "Total de Precio de Sprints:",
 
     // Service names and descriptions
     services: {
@@ -214,6 +251,23 @@ const translations = {
     suggestedServices: "AI Suggested Services",
     addSuggested: "Add Suggested",
     clearSuggestions: "Clear Suggestions",
+    sprints: "Sprints AI",
+    generateSprints: "Generate Sprints",
+    sprintsGenerated: "Sprints Generated:",
+    sprintDescription: "Description:",
+    sprintPlaceholder: "Description for the sprint...",
+    sprintHours: "Estimated Hours:",
+    sprintPrice: "Estimated Price:",
+    sprintDescriptionPlaceholder: "Description for the price...",
+    sprintHoursPlaceholder: "Estimated hours for the sprint...",
+    sprintPricePlaceholder: "Estimated price for the sprint...",
+    sprintAdd: "Add Sprint",
+    sprintRemove: "Remove Sprint",
+    sprintTotal: "Total Sprints:",
+    sprintTotalHours: "Total Sprint Hours:",
+    sprintTotalPrice: "Total Sprint Price:",
+    sprintTotalHoursLabel: "Total Sprint Hours:",
+    sprintTotalPriceLabel: "Total Sprint Price:",
 
     // Service names and descriptions
     services: {
@@ -298,7 +352,7 @@ const services: ServiceItem[] = [
     id: "scaffold-project",
     nameKey: "scaffold-project",
     descriptionKey: "scaffold-project",
-    basePrice: 500,
+    basePrice: 600,
     timeHours: 15,
     category: "frontend",
     details: [
@@ -321,7 +375,7 @@ const services: ServiceItem[] = [
     id: "responsive-design",
     nameKey: "responsive-design",
     descriptionKey: "responsive-design",
-    basePrice: 600,
+    basePrice: 200,
     timeHours: 18,
     category: "frontend",
     details: [
@@ -337,7 +391,7 @@ const services: ServiceItem[] = [
     id: "extra-pages",
     nameKey: "extra-pages",
     descriptionKey: "extra-pages",
-    basePrice: 800,
+    basePrice: 200,
     timeHours: 20,
     category: "frontend",
     details: [
@@ -546,6 +600,9 @@ export default function BudgetCalculator() {
   const [appDescription, setAppDescription] = useState("")
   const [suggestedServices, setSuggestedServices] = useState<ServiceItem[]>([])
   const [isAnalyzingApp, setIsAnalyzingApp] = useState(false)
+  const [sprints, setSprints] = useState<Sprint[]>([])
+  const [sprintDescription, setSprintDescription] = useState<string>("")
+  const [isAnalyzingSprints, setIsAnalyzingSprints] = useState(false)
 
   const t = translations[language]
 
@@ -600,6 +657,7 @@ export default function BudgetCalculator() {
       }
 
       const { suggestedServiceIds } = await res.json()
+      console.log("🚀 ~ analyzeAppDescription ~ suggestedServiceIds:", suggestedServiceIds)
       const suggested = services.filter((service) => suggestedServiceIds.includes(service.id))
       setSuggestedServices(suggested)
     } catch (error) {
@@ -633,13 +691,14 @@ export default function BudgetCalculator() {
         return
       }
 
-      const { estimatedPrice, estimatedHours } = await res.json()
+      const { estimatedPrice, estimatedHours, reasoning } = await res.json()
 
       const newFeature: CustomFeature = {
         id: Date.now().toString(),
         description: customInput,
         estimatedPrice,
         estimatedHours,
+        reasoning,
       }
 
       setCustomFeatures((prev) => [...prev, newFeature])
@@ -669,17 +728,21 @@ export default function BudgetCalculator() {
     let priceMultiplier = 1
     switch (contractType) {
       case "freelance":
-        priceMultiplier = 0.8
+        priceMultiplier = 1.1 // más caro
         break
       case "modular":
-        priceMultiplier = 0.9
+        priceMultiplier = 1 // medio
         break
       case "package":
-        priceMultiplier = 1
+        priceMultiplier = 0.9 // más barato
         break
     }
 
-    const phaseMultiplier = phases.length > 1 ? 1 + (phases.length - 1) * 0.1 : 1
+    // Ajuste por fases: solo si > 6 fases
+    let phaseMultiplier = 1
+    if (phases.length > 6) {
+      phaseMultiplier = 1 + (phases.length - 6) * 0.1
+    }
     const finalPrice = baseTotal * priceMultiplier * phaseMultiplier
 
     return {
@@ -692,44 +755,346 @@ export default function BudgetCalculator() {
   }
 
   const exportToPDF = async () => {
-    const totals = calculateTotals()
-
+    const totals = calculateTotals();
     try {
-      const response = await fetch("/api/export-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          cart: cart.map((item) => ({
-            ...item,
-            name: getServiceName(item),
-            description: getServiceDescription(item),
-          })),
-          customFeatures,
-          contractType,
-          phases: phases.length,
-          totals,
-          language,
-        }),
-      })
-
-      if (response.ok) {
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = `presupuesto-web-${new Date().toISOString().split("T")[0]}.pdf`
-        document.body.appendChild(a)
-        a.click()
-        window.URL.revokeObjectURL(url)
-        document.body.removeChild(a)
-      } else {
-        alert("Error al generar el PDF")
+      const doc = new jsPDF();
+      console.log("🚀 ~ exportToPDF ~ doc:", doc)
+      const primaryColor = [59, 130, 246] as [number, number, number];
+      const secondaryColor = [107, 114, 128] as [number, number, number];
+      const accentColor = [16, 185, 129] as [number, number, number];
+      const isSpanish = language === "es";
+      // Header
+      doc.setFillColor(...primaryColor);
+      doc.rect(0, 0, 210, 40, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.setFont("helvetica", "bold");
+      doc.text(isSpanish ? "PRESUPUESTO DE DESARROLLO WEB" : "WEB DEVELOPMENT BUDGET", 20, 25);
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.text(
+        `${isSpanish ? "Fecha" : "Date"}: ${new Date().toLocaleDateString(isSpanish ? "es-ES" : "en-US")}`,
+        150,
+        32,
+      );
+      // Developer Info
+      doc.setFontSize(10);
+      doc.text("Horacio Gutierrez", 20, 32);
+      doc.text("horacio.estevez@gmail.com", 20, 36);
+      doc.setTextColor(0, 0, 0);
+      let yPosition = 60;
+      // Project Information
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...primaryColor);
+      doc.text(isSpanish ? "INFORMACIÓN DEL PROYECTO" : "PROJECT INFORMATION", 20, yPosition);
+      yPosition += 15;
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(0, 0, 0);
+      const contractTypeLabels = isSpanish
+        ? {
+          freelance: "Por Horas (Freelance) - 20% descuento",
+          modular: "Módulos Escalonados - 10% descuento",
+          package: "Proyecto Completo - Precio estándar",
+        }
+        : {
+          freelance: "Hourly (Freelance) - 20% discount",
+          modular: "Modular Phases - 10% discount",
+          package: "Complete Project - Standard price",
+        };
+      doc.text(
+        `${isSpanish ? "Tipo de Contratación" : "Contract Type"}: ${contractTypeLabels[contractType as keyof typeof contractTypeLabels]}`,
+        20,
+        yPosition,
+      );
+      yPosition += 8;
+      doc.text(`${isSpanish ? "Número de Fases" : "Number of Phases"}: ${phases.length}`, 20, yPosition);
+      yPosition += 8;
+      doc.text(
+        `${isSpanish ? "Tiempo Total Estimado" : "Total Estimated Time"}: ${totals.totalHours} ${isSpanish ? "horas" : "hours"} (${Math.ceil(totals.totalHours / 8)} ${isSpanish ? "días laborales" : "work days"})`,
+        20,
+        yPosition,
+      );
+      yPosition += 20;
+      // Services Table
+      if (cart.length > 0) {
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...primaryColor);
+        doc.text(isSpanish ? "SERVICIOS SELECCIONADOS" : "SELECTED SERVICES", 20, yPosition);
+        yPosition += 10;
+        const tableData = cart.map((item) => [
+          getServiceName(item),
+          item.quantity.toString(),
+          `$${item.basePrice.toLocaleString()}`,
+          `${item.timeHours}h`,
+          `$${(item.basePrice * item.quantity).toLocaleString()}`,
+        ]);
+        const headers = isSpanish
+          ? ["Servicio", "Cant.", "Precio Unit.", "Tiempo", "Subtotal"]
+          : ["Service", "Qty.", "Unit Price", "Time", "Subtotal"];
+        doc.autoTable({
+          startY: yPosition,
+          head: [headers],
+          body: tableData,
+          theme: "grid",
+          headStyles: {
+            fillColor: primaryColor,
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+            fontSize: 10,
+          },
+          bodyStyles: {
+            fontSize: 9,
+            textColor: [0, 0, 0],
+          },
+          alternateRowStyles: {
+            fillColor: [248, 250, 252],
+          },
+          columnStyles: {
+            0: { cellWidth: 70 },
+            1: { cellWidth: 20, halign: "center" },
+            2: { cellWidth: 30, halign: "right" },
+            3: { cellWidth: 25, halign: "center" },
+            4: { cellWidth: 35, halign: "right" },
+          },
+          margin: { left: 20, right: 20 },
+        });
+        yPosition = (doc as any).lastAutoTable.finalY + 15;
       }
+      // Custom Features Table
+      if (customFeatures.length > 0) {
+        if (yPosition > 250) {
+          doc.addPage();
+          yPosition = 30;
+        }
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...primaryColor);
+        doc.text(isSpanish ? "FUNCIONALIDADES PERSONALIZADAS" : "CUSTOM FEATURES", 20, yPosition);
+        yPosition += 10;
+        const customTableData = customFeatures.map((feature) => [
+          feature.description,
+          `${feature.estimatedHours}h`,
+          `$${feature.estimatedPrice.toLocaleString()}`,
+        ]);
+        const customHeaders = isSpanish ? ["Descripción", "Tiempo", "Precio"] : ["Description", "Time", "Price"];
+        doc.autoTable({
+          startY: yPosition,
+          head: [customHeaders],
+          body: customTableData,
+          theme: "grid",
+          headStyles: {
+            fillColor: primaryColor,
+            textColor: [255, 255, 255],
+            fontStyle: "bold",
+            fontSize: 10,
+          },
+          bodyStyles: {
+            fontSize: 9,
+            textColor: [0, 0, 0],
+          },
+          alternateRowStyles: {
+            fillColor: [248, 250, 252],
+          },
+          columnStyles: {
+            0: { cellWidth: 120 },
+            1: { cellWidth: 25, halign: "center" },
+            2: { cellWidth: 35, halign: "right" },
+          },
+          margin: { left: 20, right: 20 },
+        });
+        yPosition = (doc as any).lastAutoTable.finalY + 15;
+      }
+      // Sprints Distribution
+      if (sprints.length > 0) {
+        if (yPosition > 220) {
+          doc.addPage();
+          yPosition = 30;
+        }
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...primaryColor);
+        doc.text(isSpanish ? "DISTRIBUCIÓN DE SPRINTS" : "SPRINT DISTRIBUTION", 20, yPosition);
+        yPosition += 10;
+        sprints.forEach((sprint, idx) => {
+          if (yPosition > 270) {
+            doc.addPage();
+            yPosition = 30;
+          }
+          doc.setFontSize(12);
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(...primaryColor);
+          doc.text(`${isSpanish ? "Sprint" : "Sprint"} ${idx + 1}: ${sprint.name}`, 20, yPosition);
+          yPosition += 7;
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(0, 0, 0);
+          doc.text(sprint.description, 22, yPosition, { maxWidth: 170 });
+          yPosition += 6;
+          doc.text(
+            `${isSpanish ? "Horas estimadas" : "Estimated hours"}: ${sprint.estimatedHours}`,
+            22,
+            yPosition,
+          );
+          yPosition += 6;
+          doc.text(
+            `${isSpanish ? "Funcionalidades" : "Features"}: ${sprint.features?.join(", ")}`,
+            22,
+            yPosition,
+            { maxWidth: 170 },
+          );
+          yPosition += 10;
+        });
+        if (sprintDescription) {
+          doc.setFontSize(10);
+          doc.setFont("helvetica", "italic");
+          doc.setTextColor(...secondaryColor);
+          doc.text(
+            `${isSpanish ? "Razonamiento de la distribución de sprints" : "Sprint distribution reasoning"}: ${sprintDescription}`,
+            20,
+            yPosition,
+            { maxWidth: 170 },
+          );
+          yPosition += 10;
+        }
+      }
+      // Cost Summary
+      if (yPosition > 220) {
+        doc.addPage();
+        yPosition = 30;
+      }
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...primaryColor);
+      doc.text(isSpanish ? "RESUMEN DE COSTOS" : "COST SUMMARY", 20, yPosition);
+      yPosition += 15;
+      const summaryLabels = isSpanish
+        ? {
+          subtotal: "Subtotal de Servicios",
+          contractAdjustment: "Ajuste por Tipo de Contrato",
+          phaseAdjustment: "Ajuste por Fases",
+          finalTotal: "TOTAL FINAL",
+          noDiscount: "Sin descuento",
+          noSurcharge: "Sin recargo",
+        }
+        : {
+          subtotal: "Services Subtotal",
+          contractAdjustment: "Contract Type Adjustment",
+          phaseAdjustment: "Phase Adjustment",
+          finalTotal: "FINAL TOTAL",
+          noDiscount: "No discount",
+          noSurcharge: "No surcharge",
+        };
+      const summaryData = [
+        [summaryLabels.subtotal, `$${totals.baseTotal.toLocaleString()}`],
+        [
+          summaryLabels.contractAdjustment,
+          totals.priceMultiplier < 1 ? `-${((1 - totals.priceMultiplier) * 100).toFixed(0)}%` : summaryLabels.noDiscount,
+        ],
+        [
+          summaryLabels.phaseAdjustment,
+          totals.phaseMultiplier > 1 ? `+${((totals.phaseMultiplier - 1) * 100).toFixed(0)}%` : summaryLabels.noSurcharge,
+        ],
+        ["", ""],
+        [summaryLabels.finalTotal, `$${totals.finalPrice.toLocaleString()}`],
+      ];
+      doc.autoTable({
+        startY: yPosition,
+        body: summaryData,
+        theme: "plain",
+        bodyStyles: {
+          fontSize: 11,
+          textColor: [0, 0, 0],
+        },
+        columnStyles: {
+          0: { cellWidth: 120, fontStyle: "normal" },
+          1: { cellWidth: 50, halign: "right", fontStyle: "normal" },
+        },
+        didParseCell: (data: any) => {
+          if (data.row.index === 4) {
+            data.cell.styles.fillColor = accentColor;
+            data.cell.styles.textColor = [255, 255, 255];
+            data.cell.styles.fontStyle = "bold";
+            data.cell.styles.fontSize = 14;
+          }
+          if (data.row.index === 3) {
+            data.cell.styles.minCellHeight = 5;
+          }
+        },
+        margin: { left: 20, right: 20 },
+      });
+      yPosition = (doc as any).lastAutoTable.finalY + 20;
+      // Terms and Conditions
+      if (yPosition > 220) {
+        doc.addPage();
+        yPosition = 30;
+      }
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...primaryColor);
+      doc.text(isSpanish ? "TÉRMINOS Y CONDICIONES" : "TERMS AND CONDITIONS", 20, yPosition);
+      yPosition += 15;
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...secondaryColor);
+      const terms = isSpanish
+        ? [
+          "• Este presupuesto tiene una validez de 30 días desde la fecha de emisión.",
+          "• Los precios están expresados en dólares estadounidenses (USD).",
+          "• El tiempo estimado puede variar según la complejidad y cambios en los requerimientos.",
+          "• Se requiere un anticipo del 50% para iniciar el proyecto.",
+          "• Los pagos se realizarán según las fases acordadas del proyecto.",
+          "• Cualquier funcionalidad adicional será cotizada por separado.",
+          "• El cliente debe proporcionar todo el contenido necesario (textos, imágenes, etc.).",
+          "• Se incluyen 2 rondas de revisiones por cada entregable.",
+          "• El mantenimiento y hosting no están incluidos en este presupuesto.",
+          "• Los derechos de autor se transfieren al cliente una vez completado el pago.",
+          "• El precio solo aumenta si el proyecto se divide en más de 6 fases, debido a la duración extendida.",
+        ]
+        : [
+          "• This budget is valid for 30 days from the date of issue.",
+          "• Prices are expressed in US dollars (USD).",
+          "• Estimated time may vary based on complexity and requirement changes.",
+          "• A 50% advance payment is required to start the project.",
+          "• Payments will be made according to the agreed project phases.",
+          "• Any additional functionality will be quoted separately.",
+          "• The client must provide all necessary content (texts, images, etc.).",
+          "• 2 rounds of revisions are included for each deliverable.",
+          "• Maintenance and hosting are not included in this budget.",
+          "• Copyright is transferred to the client once payment is completed.",
+          "• Price increases only if the project is split into more than 6 phases, due to extended duration.",
+        ];
+      terms.forEach((term, index) => {
+        if (yPosition > 270) {
+          doc.addPage();
+          yPosition = 30;
+        }
+        doc.text(term, 20, yPosition, { maxWidth: 170 });
+        yPosition += 8;
+      });
+      // Footer
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(...secondaryColor);
+        doc.text(`${isSpanish ? "Página" : "Page"} ${i} ${isSpanish ? "de" : "of"} ${pageCount}`, 20, 285);
+        doc.text(
+          isSpanish ? "Generado por Calculadora de Presupuestos Web" : "Generated by Web Budget Calculator",
+          105,
+          285,
+          { align: "center" },
+        );
+        doc.text(new Date().toLocaleString(isSpanish ? "es-ES" : "en-US"), 190, 285, { align: "right" });
+      }
+      doc.save(`presupuesto-web-${new Date().toISOString().split("T")[0]}.pdf`);
     } catch (error) {
-      console.error("Error exporting PDF:", error)
-      alert("Error al exportar el PDF")
+      console.error("Error exporting PDF:", error);
+      alert("Error al exportar el PDF");
     }
-  }
+  };
 
   const totals = calculateTotals()
   const getCategoryServices = (category: string) => services.filter((service) => service.category === category)
@@ -739,7 +1104,7 @@ export default function BudgetCalculator() {
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-lg">{getServiceName(service)}</CardTitle>
+            <CardTitle className="text-lg clamp-1">{getServiceName(service)}</CardTitle>
             <CardDescription className="text-sm">{getServiceDescription(service)}</CardDescription>
           </div>
           <Dialog>
@@ -810,6 +1175,38 @@ export default function BudgetCalculator() {
       </CardContent>
     </Card>
   )
+
+  // Sprint AI generation handler
+  const analyzeSprints = async () => {
+    setIsAnalyzingSprints(true)
+    setSprints([])
+    setSprintDescription("")
+    try {
+      // Features: names of selected services + custom features
+      const features = [
+        ...cart.map((item) => getServiceName(item)),
+        ...customFeatures.map((f) => f.description),
+      ]
+      const res = await fetch("/api/analyze-sprints", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ features, phases: phases.length, language }),
+      })
+      if (!res.ok) {
+        const { error } = await res.json()
+        alert(error ?? "Error al generar los sprints.")
+        return
+      }
+      const { sprints: aiSprints, reasoning } = await res.json()
+      setSprints(aiSprints)
+      setSprintDescription(reasoning)
+    } catch (error) {
+      console.error("Error analyzing sprints:", error)
+      alert("No se pudo conectar con el servicio de IA para sprints.")
+    } finally {
+      setIsAnalyzingSprints(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 transition-colors">
@@ -898,7 +1295,7 @@ export default function BudgetCalculator() {
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 clamp-1">
                   <Zap className="h-5 w-5" />
                   {t.availableServices}
                 </CardTitle>
@@ -906,10 +1303,10 @@ export default function BudgetCalculator() {
               <CardContent>
                 <Tabs defaultValue="frontend" className="w-full">
                   <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="frontend">{t.frontend}</TabsTrigger>
-                    <TabsTrigger value="backend">{t.backend}</TabsTrigger>
-                    <TabsTrigger value="integrations">{t.integrations}</TabsTrigger>
-                    <TabsTrigger value="custom">{t.customFeatures}</TabsTrigger>
+                    <TabsTrigger value="frontend" className="clamp-1">{t.frontend}</TabsTrigger>
+                    <TabsTrigger value="backend" className="clamp-1">{t.backend}</TabsTrigger>
+                    <TabsTrigger value="integrations" className="clamp-1">{t.integrations}</TabsTrigger>
+                    <TabsTrigger value="custom" className="clamp-1">{t.customFeatures}</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="frontend" className="mt-6">
@@ -963,6 +1360,7 @@ export default function BudgetCalculator() {
                                   <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
                                     <span>${feature.estimatedPrice}</span>
                                     <span>{feature.estimatedHours}h</span>
+                                    <span>{feature.reasoning}</span>
                                   </div>
                                 </div>
                                 <Button variant="ghost" size="sm" onClick={() => removeCustomFeature(feature.id)}>
@@ -976,6 +1374,42 @@ export default function BudgetCalculator() {
                     )}
                   </TabsContent>
                 </Tabs>
+
+                {/* Sprints AI Section */}
+                <div className="mt-8">
+                  <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
+                    <Sparkles className="h-5 w-5" /> {t.sprints}
+                  </h3>
+                  <Button onClick={analyzeSprints} disabled={isAnalyzingSprints} className="mb-4">
+                    {isAnalyzingSprints ? t.analyzing : t.generateSprints}
+                  </Button>
+                  {sprints.length > 0 && (
+                    <div className="space-y-4">
+                      <div className="text-sm text-gray-700 dark:text-gray-300">
+                        <span className="font-medium">{t.sprintsGenerated}</span>
+                        <ul className="list-decimal list-inside mt-2 space-y-2">
+                          {sprints.map((sprint, idx) => (
+                            <li key={idx} className="bg-blue-50 dark:bg-blue-900/20 rounded p-3">
+                              <div className="font-semibold text-blue-700 dark:text-blue-300">{sprint.name}</div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">{sprint.description}</div>
+                              <div className="text-xs mb-1">
+                                <span className="font-medium">{t.sprintHours}</span> {sprint.estimatedHours}
+                              </div>
+                              <div className="text-xs">
+                                <span className="font-medium">Features:</span> {sprint.features?.join(", ")}
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      {sprintDescription && (
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                          <span className="font-medium">{t.sprintDescription}</span> {sprintDescription}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -1058,13 +1492,18 @@ export default function BudgetCalculator() {
                           .map((_, i) => 100 / value[0]),
                       )
                     }
-                    max={5}
+                    max={10}
                     min={1}
                     step={1}
                     className="mt-2"
                   />
                   <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                     {phases.length === 1 ? t.singlePhase : `${t.multiplePhases} ${phases.length} fases`}
+                  </div>
+                  <div className="mt-1 text-xs text-blue-600 dark:text-blue-300">
+                    {language === "es"
+                      ? "Nota: El precio solo aumenta si el proyecto se divide en más de 6 fases, debido a la duración extendida."
+                      : "Note: Price increases only if the project is split into more than 6 phases, due to extended duration."}
                   </div>
                 </div>
               </CardContent>
