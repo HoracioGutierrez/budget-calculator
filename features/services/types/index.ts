@@ -23,3 +23,6 @@ export type TabCardProps = {
     service: ServiceCategory
 }
 
+export type ServiceCardProps = {
+    service: ServiceItem
+}

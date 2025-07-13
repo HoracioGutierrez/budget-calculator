@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { LayoutHeader, ThemeProvider, LayoutFooter } from '@/features/layout/components'
 import { RootLayoutProps } from '@/features/layout/types'
 import './globals.css'
+import CartProvider from '@/features/providers/components/cart-prodiver'
 
 export const metadata: Metadata = {
   title: 'Budget Calculator App',
@@ -24,11 +25,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
           enableSystem
           disableTransitionOnChange
         >
-          <LayoutHeader />
-          <main>
-            {children}
-          </main>
-          <LayoutFooter />
+          <CartProvider>
+            <LayoutHeader />
+            <main>
+              {children}
+            </main>
+            <LayoutFooter />
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>
