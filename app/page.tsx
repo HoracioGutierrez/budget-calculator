@@ -16,14 +16,14 @@ const LandingPage = () => {
                     alt="Landing Page"
                     className="object-cover grayscale-75 blur-xs"
                 />
-                <div className="relative z-20 flex flex-col gap-12">
-                    <h2 className="text-8xl font-bold text-white flex flex-col justify-center items-center">
+                <div className="relative z-20 flex flex-col gap-12 px-4 ">
+                    <h2 className="text-4xl md:text-6xl xl:text-8xl font-black text-white flex flex-col justify-center items-center text-center text-shadow-lg">
                         <span className="text-accent">
                             Website
                         </span>
                         Budget Calculator
                     </h2>
-                    <p className="text-white/50 text-center text-xl max-w-2xl hover:text-white transition-all mx-auto">
+                    <p className="text-white/50 text-center text-base md:text-lg xl:text-xl max-w-2xl hover:text-white transition-all mx-auto">
                         The easiest way to calculate your project budget by yourself based on your client's requirements. Just describe your project and get the result in seconds!
                     </p>
                     <div className="flex flex-col gap-4">
@@ -46,9 +46,9 @@ const LandingPage = () => {
                     <ChevronDownCircle className="w-10 h-10" />
                 </Button>
             </section>
-            <section className="py-12">
+            <section className="py-20">
                 <h2 className="text-4xl font-bold text-center mb-20">Services</h2>
-                <div>
+                <div className="px-4">
                     <Tabs defaultValue="frontend" className="w-full">
                         <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
                             <TabsTrigger value="frontend" className="cursor-pointer">

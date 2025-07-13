@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { LayoutHeader, ThemeProvider } from '@/features/layout/components'
+import { LayoutHeader, ThemeProvider, LayoutFooter } from '@/features/layout/components'
 import { RootLayoutProps } from '@/features/layout/types'
 import './globals.css'
 
@@ -28,6 +28,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <main>
             {children}
           </main>
+          <LayoutFooter />
         </ThemeProvider>
       </body>
     </html>
