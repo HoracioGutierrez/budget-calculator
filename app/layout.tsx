@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { LayoutHeader, ThemeProvider } from '@/features/layout/components'
 import { RootLayoutProps } from '@/features/layout/types'
 import './globals.css'
 
@@ -15,8 +16,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="es" suppressHydrationWarning>
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <LayoutHeader />
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   )
 }
