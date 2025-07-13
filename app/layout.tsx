@@ -3,6 +3,7 @@ import { LayoutHeader, ThemeProvider, LayoutFooter } from '@/features/layout/com
 import { RootLayoutProps } from '@/features/layout/types'
 import './globals.css'
 import CartProvider from '@/features/providers/components/cart-prodiver'
+import { Toaster } from '@/components/ui/sonner'
 
 export const metadata: Metadata = {
   title: 'Budget Calculator App',
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               {children}
             </main>
             <LayoutFooter />
+            <Toaster richColors/>
           </CartProvider>
         </ThemeProvider>
       </body>

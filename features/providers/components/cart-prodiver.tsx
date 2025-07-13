@@ -2,6 +2,7 @@
 import { ServiceItem } from "@/features/services/types";
 import { createContext, useContext, useState } from "react";
 import { CartContextType } from "../types";
+import { toast } from "sonner";
 
 const CartContext = createContext<CartContextType>({
     cart: [],
@@ -23,7 +24,13 @@ const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const [cart, setCart] = useState<ServiceItem[]>([])
 
     const addToCart = (service: ServiceItem) => {
-        setCart((prev) => [...prev, service])
+        // check if the service is already in the cart
+        const existing = cart.find((item) => item.id === service.id)
+        if (existing) {
+            toast.error("Service already in cart")
+        } else {
+            setCart((prev) => [...prev, service])
+        }
     }
 
     const removeFromCart = (id: string) => {
