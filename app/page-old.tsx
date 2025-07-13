@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
+import { Switch } from "@/features/ui/components/switch"
 import {
   Dialog,
   DialogContent,
@@ -1216,7 +1216,7 @@ export default function BudgetCalculator() {
           <div></div>
           <div className="flex items-center gap-4">
             {/* Language Toggle */}
-            <Select value={language} onValueChange={(value: Language) => setLanguage(value)}>
+            {/* <Select value={language} onValueChange={(value: Language) => setLanguage(value)}>
               <SelectTrigger className="w-20">
                 <Globe className="h-4 w-4" />
               </SelectTrigger>
@@ -1224,7 +1224,7 @@ export default function BudgetCalculator() {
                 <SelectItem value="es">ES</SelectItem>
                 <SelectItem value="en">EN</SelectItem>
               </SelectContent>
-            </Select>
+            </Select> */}
 
             {/* Theme Toggle */}
             {/* <div className="flex items-center gap-2">

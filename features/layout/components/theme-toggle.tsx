@@ -1,5 +1,5 @@
 'use client'
-import { Switch } from "@/components/ui/switch";
+import { Switch } from "@/features/ui/components/switch";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
