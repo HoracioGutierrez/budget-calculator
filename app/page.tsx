@@ -1,7 +1,9 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/features/ui/components/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/features/ui/components/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ChevronDownCircle, Plus } from "lucide-react";
 import Image from "next/image";
+import TabCards from "@/features/services/components/tab-cards";
 
 const LandingPage = () => {
     return (
@@ -21,7 +23,7 @@ const LandingPage = () => {
                         </span>
                         Budget Calculator
                     </h2>
-                    <p className="text-white/50 text-center text-xl max-w-2xl hover:text-white transition-all">
+                    <p className="text-white/50 text-center text-xl max-w-2xl hover:text-white transition-all mx-auto">
                         The easiest way to calculate your project budget by yourself based on your client's requirements. Just describe your project and get the result in seconds!
                     </p>
                     <div className="flex flex-col gap-4">
@@ -44,10 +46,42 @@ const LandingPage = () => {
                     <ChevronDownCircle className="w-10 h-10" />
                 </Button>
             </section>
-            <section>
-                <h2>
-                    Welcome to the Budget Calculator App
-                </h2>
+            <section className="py-12">
+                <h2 className="text-4xl font-bold text-center mb-20">Services</h2>
+                <div>
+                    <Tabs defaultValue="frontend" className="w-full">
+                        <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
+                            <TabsTrigger value="frontend" className="cursor-pointer">
+                                <span className="md:hidden">Front</span>
+                                <span className="hover:text-accent hidden md:block">Frontend</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="backend" className="cursor-pointer">
+                                <span className="md:hidden">Back</span>
+                                <span className="hover:text-accent hidden md:block">Backend</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="integrations" className="cursor-pointer">
+                                <span className="md:hidden">Integ</span>
+                                <span className="hover:text-accent hidden md:block">Integrations</span>
+                            </TabsTrigger>
+                            <TabsTrigger value="custom" className="cursor-pointer">
+                                <span className="md:hidden">Custom</span>
+                                <span className="hover:text-accent hidden md:block">Custom Features</span>
+                            </TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="frontend" className="mt-6">
+                            <TabCards service="frontend" />
+                        </TabsContent>
+                        <TabsContent value="backend" className="mt-6">
+                            <TabCards service="backend" />
+                        </TabsContent>
+                        <TabsContent value="integrations" className="mt-6">
+                            <TabCards service="integrations" />
+                        </TabsContent>
+                        <TabsContent value="custom" className="mt-6">
+                            <TabCards service="custom" />
+                        </TabsContent>
+                    </Tabs>
+                </div>
             </section>
         </>
     );

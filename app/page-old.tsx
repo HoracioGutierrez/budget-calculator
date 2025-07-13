@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/features/ui/components/card"
+import { Button } from "@/features/ui/components/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/features/ui/components/tabs"
 import { Slider } from "@/components/ui/slider"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
@@ -46,11 +46,6 @@ declare module "jspdf" {
   }
 }
 
-interface TaskDetail {
-  task: string
-  hours: number
-  description: string
-}
 
 interface ServiceItem {
   id: string
@@ -1211,34 +1206,6 @@ export default function BudgetCalculator() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 transition-colors">
       <div className="max-w-7xl mx-auto">
-        {/* Header with controls */}
-        <div className="flex justify-between items-center mb-6">
-          <div></div>
-          <div className="flex items-center gap-4">
-            {/* Language Toggle */}
-            {/* <Select value={language} onValueChange={(value: Language) => setLanguage(value)}>
-              <SelectTrigger className="w-20">
-                <Globe className="h-4 w-4" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="es">ES</SelectItem>
-                <SelectItem value="en">EN</SelectItem>
-              </SelectContent>
-            </Select> */}
-
-            {/* Theme Toggle */}
-            {/* <div className="flex items-center gap-2">
-              <Sun className="h-4 w-4" />
-              <Switch checked={theme === "dark"} onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")} />
-              <Moon className="h-4 w-4" />
-            </div> */}
-          </div>
-        </div>
-
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">{t.title}</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">{t.subtitle}</p>
-        </div>
 
         {/* App Description Input */}
         <Card className="mb-6">
