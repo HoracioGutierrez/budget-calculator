@@ -1,7 +1,7 @@
 import { Button } from "@/features/ui/components/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/features/ui/components/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronDownCircle, Plus } from "lucide-react";
+import { ChevronDownCircle } from "lucide-react";
 import Image from "next/image";
 import TabCards from "@/features/services/components/tab-cards";
 
