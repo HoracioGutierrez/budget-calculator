@@ -2,7 +2,6 @@ import { type NextRequest, NextResponse } from "next/server";
 import { streamObject } from "ai";
 import { google } from "@ai-sdk/google";
 import { z } from "zod";
-import { SprintAIResponse } from "../../../lib/utils";
 
 export async function POST(req: NextRequest) {
   const { features, phases, language } = await req.json();
@@ -18,7 +17,7 @@ export async function POST(req: NextRequest) {
 
 ${features.map((f: string) => `- ${f}`).join("\n")}
 
-Divide these features into ${phases} logical sprints, each with a name, description, list of features, and estimated hours (sum of the features in the sprint). The number of sprints should match the number of phases. Also, provide a brief reasoning for the sprint distribution.
+Divide these features into ${phases} logical sprints, each with a name, description, list of features, and estimated hours (sum of the features in the sprint). The number of sprints should be equal or greater than the number of phases. Also, provide a brief reasoning for the sprint distribution. Each sprint should be between 3 and 5 days and should not be greater than the total number of hours of the project/total features divided by the number of sprints, so features/sprints length are not too big. Each sprint feature should be written like a backlog task statement. Generate at least 3 features per sprint, so 3 backlog tasks items.
 
 Respond ONLY with a JSON in this exact format:
 {
@@ -38,7 +37,7 @@ Respond ONLY with a JSON in this exact format:
 
 ${features.map((f: string) => `- ${f}`).join("\n")}
 
-Divide estas funcionalidades en ${phases} sprints lógicos, cada uno con un nombre, descripción, lista de funcionalidades y horas estimadas (suma de las funcionalidades en el sprint). El número de sprints debe coincidir con el número de fases. Además, proporciona una breve justificación de la distribución de los sprints.
+Divide estas funcionalidades en ${phases} sprints lógicos, cada uno con un nombre, descripción, lista de funcionalidades y horas estimadas (suma de las funcionalidades en el sprint). El número de sprints debe ser igual o mayor que el número de fases. Además, proporciona una breve justificación de la distribución de los sprints. Cada sprint debe tener entre 3 y 5 días y no debe ser mayor que el total de horas del proyecto/total de funcionalidades dividido por el número de sprints, por lo que las longitudes de funcionalidades/sprints no son demasiado grandes. Cada funcionalidad del sprint debe estar escrita como una declaración de tarea de backlog.
 
 Responde SOLO con un JSON en este formato exacto:
 {
