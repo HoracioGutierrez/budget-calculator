@@ -6,6 +6,7 @@ import Cart from "@/features/cart/components/cart";
 import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { useCart } from "@/features/providers/components/cart-prodiver";
 import SprintCalculator from "./sprint-calculator";
+import ServiceAiFeatures from "./service-ai-features";
 
 const TabCards = ({ service }: TabCardProps) => {
 
@@ -29,8 +30,7 @@ const TabCards = ({ service }: TabCardProps) => {
                 <SprintCalculator />
             )}
             {service === "custom" && (
-                <>
-                </>
+                <ServiceAiFeatures />
             )}
             {service !== "sprints" && service !== "custom" && services.length > 0 && (
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))] gap-4 h-fit">
