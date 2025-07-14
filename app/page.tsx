@@ -1,10 +1,10 @@
 import { Button } from "@/features/ui/components/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/features/ui/components/tabs";
-import { Textarea } from "@/features/ui/components/textarea";
 import { ChevronDownCircle, Sparkles } from "lucide-react";
 import Image from "next/image";
 import TabCards from "@/features/services/components/tab-cards";
 import ServiceAiTextarea from "@/features/services/components/service-ai-textarea";
+import ScrollDownButton from "@/features/layout/components/scroll-down-button";
 
 const LandingPage = () => {
     return (
@@ -29,9 +29,7 @@ const LandingPage = () => {
                     </p>
                     <ServiceAiTextarea />
                 </div>
-                <Button variant="secondary" className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 rounded-full p-0 animate-bounce opacity-50 hover:opacity-100 transition-all hover:scale-125 hover:bg-accent hover:cursor-pointer" size="icon">
-                    <ChevronDownCircle className="w-10 h-10" />
-                </Button>
+                <ScrollDownButton />
             </section>
             <section className="py-20">
                 <h2 className="text-4xl font-bold text-center mb-20">Services</h2>
