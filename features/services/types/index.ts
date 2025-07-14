@@ -17,7 +17,7 @@ export type ServiceItem = {
     description: string
 }
 
-export type ServiceCategory = "frontend" | "backend" | "integrations" | "custom"
+export type ServiceCategory = "frontend" | "backend" | "integrations" | "custom" | "sprints"
 
 export type TabCardProps = {
     service: ServiceCategory

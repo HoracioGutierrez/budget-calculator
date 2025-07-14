@@ -38,7 +38,7 @@ const ServiceAiTextarea = () => {
                     Calculate
                 </Button>
             </div>
-            <div ref={parent} className="flex flex-col gap-4">
+            <div ref={parent} className="gap-4 grid grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))] gap-4">
                 {suggestedServices.length > 0 && (
                     suggestedServices.map((service) => (
                         <ServiceCard key={service.id} service={service} />

@@ -15,7 +15,8 @@ const TabCards = ({ service }: TabCardProps) => {
         frontend: frontendServices,
         backend: backendServices,
         integrations: integrationsServices,
-        custom: customFeaturesServices
+        custom: customFeaturesServices,
+        sprints: []
     }
 
     const services = servicesMap[service]

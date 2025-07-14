@@ -1,7 +1,7 @@
 import { Button } from "@/features/ui/components/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/features/ui/components/tabs";
 import { Textarea } from "@/features/ui/components/textarea";
-import { ChevronDownCircle } from "lucide-react";
+import { ChevronDownCircle, Sparkles } from "lucide-react";
 import Image from "next/image";
 import TabCards from "@/features/services/components/tab-cards";
 import ServiceAiTextarea from "@/features/services/components/service-ai-textarea";
@@ -37,7 +37,7 @@ const LandingPage = () => {
                 <h2 className="text-4xl font-bold text-center mb-20">Services</h2>
                 <div className="px-4">
                     <Tabs defaultValue="frontend" className="w-full">
-                        <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
+                        <TabsList className="grid w-full grid-cols-5 max-w-2xl mx-auto">
                             <TabsTrigger value="frontend" className="cursor-pointer">
                                 <span className="md:hidden">Front</span>
                                 <span className="hover:text-accent hidden md:block">Frontend</span>
@@ -50,9 +50,19 @@ const LandingPage = () => {
                                 <span className="md:hidden">Integ</span>
                                 <span className="hover:text-accent hidden md:block">Integrations</span>
                             </TabsTrigger>
-                            <TabsTrigger value="custom" className="cursor-pointer">
-                                <span className="md:hidden">Custom</span>
-                                <span className="hover:text-accent hidden md:block">Custom Features</span>
+                            <TabsTrigger value="custom" className="cursor-pointer flex items-center gap-2">
+                                <Sparkles className="w-4 h-4" />
+                                <span className="md:hidden">AI</span>
+                                <span className="hover:text-accent hidden md:block">
+                                    AI Features
+                                </span>
+                            </TabsTrigger>
+                            <TabsTrigger value="sprints" className="cursor-pointer flex items-center gap-2">
+                                <Sparkles className="w-4 h-4" />
+                                <span className="md:hidden">AI</span>
+                                <span className="hover:text-accent hidden md:block">
+                                    AI Sprints
+                                </span>
                             </TabsTrigger>
                         </TabsList>
                         <TabsContent value="frontend" className="mt-6">
@@ -66,6 +76,9 @@ const LandingPage = () => {
                         </TabsContent>
                         <TabsContent value="custom" className="mt-6">
                             <TabCards service="custom" />
+                        </TabsContent>
+                        <TabsContent value="sprints" className="mt-6">
+                            <TabCards service="sprints" />
                         </TabsContent>
                     </Tabs>
                 </div>
