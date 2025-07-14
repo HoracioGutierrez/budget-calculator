@@ -30,3 +30,12 @@ export type ServiceCardProps = {
 export type ServiceDetailsPopupProps = {
     service: ServiceItem
 }
+
+export type Sprint = {
+    name: string
+    description: string
+    features: string[]
+    estimatedHours: number
+    estimatedPrice: number
+    number: number
+}
