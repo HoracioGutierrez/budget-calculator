@@ -5,6 +5,7 @@ import { Clock, Plus } from "lucide-react";
 import { ServiceCardProps } from "../types";
 import { useCart } from "@/features/providers/components/cart-prodiver";
 import ServiceDetailsPopup from "./service-details-popup";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/features/ui/components/tooltip";
 
 const ServiceCard = ({ service }: ServiceCardProps) => {
 
@@ -24,7 +25,18 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
                     {service.title}
                     <ServiceDetailsPopup service={service} />
                 </CardTitle>
-                <CardDescription className="line-clamp-2">{service.description}</CardDescription>
+                <CardDescription className="line-clamp-2">
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger className="line-clamp-2 text-left">
+                                {service.description}
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-sm">
+                                {service.description}
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>  
+                </CardDescription>
             </CardHeader>
             <CardContent className="flex justify-between">
                 <p className="text-sm text-muted-foreground flex items-center gap-2">
