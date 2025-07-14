@@ -2,6 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { streamObject } from "ai"
 import { google } from "@ai-sdk/google"
 import { z } from "zod"
+import { frontendServices, backendServices, integrationsServices } from "@/features/services/lib/utils"
+
+const services = [...frontendServices, ...backendServices, ...integrationsServices]
 
 export async function POST(req: NextRequest) {
   const { description, language } = await req.json()
@@ -17,21 +20,31 @@ export async function POST(req: NextRequest) {
 
 "${description}"
 
+The following services are available:
+${JSON.stringify(services)} , so the price and time will be based on the services used in the feature.
+
+If the feature is not related to web development, respond with price 0, time 0 and reasoning "This feature is not related to web development or cannot be done with the available services".
+
 Respond ONLY with a JSON in this exact format:
 {
   "estimatedPrice": [number in USD],
   "estimatedHours": [number of hours],
-  "reasoning": "[brief 1-2 line explanation]"
+  "reasoning": "[explanation of the feature and why the price and time are like that]"
 }`
         : `Analiza esta funcionalidad para desarrollo web y estima el precio y tiempo de desarrollo:
 
 "${description}"
 
+Los servicios disponibles son:
+${JSON.stringify(services)} , por lo que el precio y el tiempo se basarán en los servicios utilizados en la funcionalidad.
+
+Si la funcionalidad no está relacionada con el desarrollo web, responde con precio 0, tiempo 0 y razón "Esta funcionalidad no está relacionada con el desarrollo web o no puede ser realizada con los servicios disponibles".
+
 Responde SOLO con un JSON en este formato exacto:
 {
   "estimatedPrice": [número en USD],
   "estimatedHours": [número de horas],
-  "reasoning": "[breve explicación de 1-2 líneas]"
+  "reasoning": "[explanation of the feature and why the price and time are like that]"
 }`
 
     const result = await streamObject({

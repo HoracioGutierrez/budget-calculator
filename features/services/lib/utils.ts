@@ -281,6 +281,22 @@ const integrationsServices: ServiceItem[] = [
         deliverables: ["Messaging system", "Template management", "Contact system", "Analytics tracking"],
         title: "SMS & WhatsApp",
         description: "Integrate an SMS/WhatsApp service for your project. This includes SMS/WhatsApp service setup, message templates, sending implementation, webhook handling, contact management, and analytics tracking."
+    },
+    {
+        id: "ai",
+        nameKey: "ai",
+        descriptionKey: "ai",
+        basePrice: 1000,
+        timeHours: 24,
+        category: "integrations",
+        details: [
+            { task: "OpenAI (or similar) account setup", hours: 2, description: "Configure OpenAI account" },
+            { task: "API key configuration", hours: 1, description: "Configure API key" },
+            { task: "Integration with project", hours: 1, description: "Integrate OpenAI with your project" },
+        ],
+        deliverables: ["AI platform account", "API key", "Integration with project"],
+        title: "AI Integration",
+        description: "Integrate an AI platform for your project. This includes AI platform account setup, API key configuration, and integration with your project."
     }
 ]
 
