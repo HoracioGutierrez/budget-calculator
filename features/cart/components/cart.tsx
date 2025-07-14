@@ -6,18 +6,20 @@ import { Button } from "@/features/ui/components/button";
 import { Download, Trash2 } from "lucide-react";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import { Separator } from "@/components/ui/separator";
+import { exportToPDF } from "../lib/utils";
 
 const Cart = () => {
 
-    const { cart, removeFromCart } = useCart()
+    const { cart, removeFromCart, totals } = useCart()
     const [parent] = useAutoAnimate()
 
     const handleRemoveFromCart = (id: string) => {
         removeFromCart(id)
     }
 
-    const exportToPDF = () => {
+    const handleExportToPDF = () => {
         console.log("export to pdf")
+        exportToPDF(totals, "es", cart)
     }
 
     return (
@@ -52,11 +54,11 @@ const Cart = () => {
                     <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                             <span>Subtotal</span>
-                            {/* <span>${totals.baseTotal.toLocaleString()}</span> */}
+                            <span>${totals.baseTotal.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between">
                             <span>Estimated Time</span>
-                            {/* <span>{totals.totalHours}h</span> */}
+                            <span>{totals.totalHours}h</span>
                         </div>
                         <div className="flex justify-between">
                             <span>Contract Type</span>
@@ -82,14 +84,14 @@ const Cart = () => {
 
                     <div className="flex justify-between items-center text-lg font-bold">
                         <span>Total Final</span>
-                        <span className="text-green-600">${/* {totals.finalPrice.toLocaleString()} */}</span>
+                        <span>${totals.finalPrice.toLocaleString()}</span>
                     </div>
 
                     <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-                        Estimated Time: {/* {Math.ceil(totals.totalHours / 8)} */} work days
+                        Estimated Time: {Math.ceil(totals.totalHours / 8)} work days
                     </div>
 
-                    <Button onClick={exportToPDF} className="w-full mt-4 bg-transparent" variant="outline">
+                    <Button onClick={handleExportToPDF} className="w-full mt-4 bg-transparent" variant="outline">
                         <Download className="h-4 w-4 mr-2" />
                         Export PDF
                     </Button>

@@ -22,7 +22,7 @@ const TabCards = ({ service }: TabCardProps) => {
 
     return (
         <div ref={parent} className="lg:grid lg:grid-cols-[1fr_max-content] max-w-screen-xl mx-auto gap-4">
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))] gap-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))] gap-4 h-fit">
                 {services.map((service) => (
                     <ServiceCard key={service.id} service={service} />
                 ))}

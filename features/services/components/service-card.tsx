@@ -15,7 +15,7 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
     return (
         <Card
             key={service.id}
-            className="border-muted-foreground/20 hover:border-accent hover:scale-105 transition-all"
+            className="border-muted-foreground/20 hover:border-accent hover:scale-105 transition-all h-fit"
             onClick={handleAddToCart}
         >
             <CardHeader>
