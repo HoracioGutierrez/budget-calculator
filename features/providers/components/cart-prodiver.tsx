@@ -46,6 +46,7 @@ const CartProvider = ({ children }: { children: React.ReactNode }) => {
                 totalHours: prev.totalHours + service.timeHours,
                 finalPrice: prev.finalPrice + service.basePrice,
             }))
+            toast.success("Service added to cart")
         }
     }
 
@@ -59,6 +60,7 @@ const CartProvider = ({ children }: { children: React.ReactNode }) => {
                 totalHours: prev.totalHours - serviceToRemove.timeHours,
                 finalPrice: prev.finalPrice - serviceToRemove.basePrice,
             }))
+            toast.success("Service removed from cart")
         }
     }
 
@@ -74,6 +76,7 @@ const CartProvider = ({ children }: { children: React.ReactNode }) => {
                 totalHours: prev.totalHours + (serviceToUpdate.timeHours * (quantity - 1)), 
                 finalPrice: prev.finalPrice + (serviceToUpdate.basePrice * (quantity - 1))
             }))
+            toast.success("Service quantity updated")
         }
     }
 
