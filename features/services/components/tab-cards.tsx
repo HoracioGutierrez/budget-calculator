@@ -5,6 +5,8 @@ import { TabCardProps } from "@/features/services/types";
 import Cart from "@/features/cart/components/cart";
 import { useAutoAnimate } from "@formkit/auto-animate/react"
 import { useCart } from "@/features/providers/components/cart-prodiver";
+import SprintCalculator from "./sprint-calculator";
+import ServiceAiFeatures from "./service-ai-features";
 
 const TabCards = ({ service }: TabCardProps) => {
 
@@ -20,17 +22,24 @@ const TabCards = ({ service }: TabCardProps) => {
     }
 
     const services = servicesMap[service]
+    console.log("🚀 ~ TabCards ~ service:", service)
 
     return (
         <div ref={parent} className="lg:grid lg:grid-cols-[1fr_max-content] max-w-screen-xl mx-auto gap-4">
-            {services.length > 0 && (
+            {service === "sprints" && (
+                <SprintCalculator />
+            )}
+            {service === "custom" && (
+                <ServiceAiFeatures />
+            )}
+            {service !== "sprints" && service !== "custom" && services.length > 0 && (
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(min(300px,100%),1fr))] gap-4 h-fit">
                     {services.map((service) => (
                         <ServiceCard key={service.id} service={service} />
                     ))}
                 </div>
             )}
-            {services.length === 0 && (
+            {service !== "sprints" && service !== "custom" && services.length === 0 && (
                 <div className="flex justify-center items-center h-full border-dashed border-2 rounded-md border-muted-foreground/20 py-12">
                     <p className="text-muted-foreground">No services available</p>
                 </div>
