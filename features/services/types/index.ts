@@ -26,3 +26,7 @@ export type TabCardProps = {
 export type ServiceCardProps = {
     service: ServiceItem
 }
+
+export type ServiceDetailsPopupProps = {
+    service: ServiceItem
+}

@@ -10,7 +10,6 @@ export const exportToPDF = async (totals: Totals, language: string, cart: Servic
     //const totals = calculateTotals();
     try {
         const doc = new jsPDF();
-        console.log("🚀 ~ exportToPDF ~ doc:", doc)
         const primaryColor = [59, 130, 246] as [number, number, number];
         const secondaryColor = [107, 114, 128] as [number, number, number];
         const accentColor = [16, 185, 129] as [number, number, number];

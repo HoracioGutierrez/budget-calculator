@@ -18,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/features/ui/components/dialog"
 import {
   ShoppingCart,
   Clock,

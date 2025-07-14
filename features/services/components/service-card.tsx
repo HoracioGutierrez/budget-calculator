@@ -4,6 +4,8 @@ import { Button } from "@/features/ui/components/button";
 import { Clock, Plus } from "lucide-react";
 import { ServiceCardProps } from "../types";
 import { useCart } from "@/features/providers/components/cart-prodiver";
+import ServiceDetailsPopup from "./service-details-popup";
+
 const ServiceCard = ({ service }: ServiceCardProps) => {
 
     const { addToCart } = useCart()
@@ -16,10 +18,12 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
         <Card
             key={service.id}
             className="border-muted-foreground/20 hover:border-accent hover:scale-105 transition-all h-fit"
-            onClick={handleAddToCart}
         >
             <CardHeader>
-                <CardTitle className="text-xl font-bold">{service.title}</CardTitle>
+                <CardTitle className="text-xl font-bold flex justify-between items-center">
+                    {service.title}
+                    <ServiceDetailsPopup service={service} />
+                </CardTitle>
                 <CardDescription className="line-clamp-2">{service.description}</CardDescription>
             </CardHeader>
             <CardContent className="flex justify-between">
@@ -31,7 +35,7 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
                 </p>
             </CardContent>
             <CardFooter>
-                <Button className="w-full cursor-pointer hover:bg-accent">
+                <Button className="w-full cursor-pointer hover:bg-accent" onClick={handleAddToCart}>
                     <Plus />
                     Add to cart
                 </Button>
