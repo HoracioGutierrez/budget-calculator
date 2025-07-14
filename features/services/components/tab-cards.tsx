@@ -18,6 +18,7 @@ const TabCards = ({ service }: TabCardProps) => {
         custom: customFeaturesServices,
         sprints: []
     }
+    console.log("🚀 ~ TabCards ~ servicesMap:", servicesMap)
 
     const services = servicesMap[service]
 
