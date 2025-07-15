@@ -22,7 +22,6 @@ const TabCards = ({ service }: TabCardProps) => {
     }
 
     const services = servicesMap[service]
-    console.log("🚀 ~ TabCards ~ service:", service)
 
     return (
         <div ref={parent} className="lg:grid lg:grid-cols-[1fr_max-content] max-w-screen-xl mx-auto gap-4">

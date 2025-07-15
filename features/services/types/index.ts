@@ -15,6 +15,7 @@ export type ServiceItem = {
     deliverables: string[]
     title: string
     description: string
+    quantity?: number // cantidad opcional para el carrito
 }
 
 export type ServiceCategory = "frontend" | "backend" | "integrations" | "custom" | "sprints"
@@ -29,4 +30,13 @@ export type ServiceCardProps = {
 
 export type ServiceDetailsPopupProps = {
     service: ServiceItem
+}
+
+export type Sprint = {
+    name: string
+    description: string
+    features: string[]
+    estimatedHours: number
+    estimatedPrice: number
+    number: number
 }
