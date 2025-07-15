@@ -15,6 +15,7 @@ export type ServiceItem = {
     deliverables: string[]
     title: string
     description: string
+    quantity?: number // cantidad opcional para el carrito
 }
 
 export type ServiceCategory = "frontend" | "backend" | "integrations" | "custom" | "sprints"
