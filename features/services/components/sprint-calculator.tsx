@@ -6,15 +6,21 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Sparkles } from "lucide-react";
 import { calculateSprints } from "../actions/calculateSprints";
 import { useState } from "react";
+import { Textarea } from "@/features/ui/components/textarea";
+import { Sprint } from "../types";
 const SprintCalculator = () => {
 
     const [sprints, setSprints] = useState<Sprint[]>([])
+    const [description, setDescription] = useState("")
     const { cart } = useCart()
 
     const handleGeneratePlan = async () => {
-        const data = await calculateSprints(cart.map((item) => item.id), 3, "en")
-        console.log("🚀 ~ handleGeneratePlan ~ data:", data)
+        const data = await calculateSprints(cart.map((item) => item.id), 3, "en", description)
         setSprints(data.sprints)
+    }
+
+    const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setDescription(e.target.value)
     }
 
     return (
@@ -30,7 +36,7 @@ const SprintCalculator = () => {
                     Click the button below to generate a sprint plan.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="grow">
+            <CardContent className="grow flex flex-col gap-4">
                 <p className="max-w-4xl text-balance mb-4">
                     Select the services you want to include in your project, then click the button below to generate a sprint plan. Our AI Assistant will help you plan your project based on the configuration you have selected.
                     <span className="text-red-400">This feature is currently in beta!</span>
@@ -40,6 +46,12 @@ const SprintCalculator = () => {
                         Please add some services to your cart before generating a sprint plan!
                     </p>
                 )}
+                <Textarea
+                    placeholder="A personal portfolio website for a photographer..."
+                    className="min-h-40 bg-secondary"
+                    value={description}
+                    onChange={handleDescriptionChange}
+                />
                 {sprints.length > 0 && (
                     <div className="flex flex-col gap-4">
                         <p className="text-muted-foreground">Sprint Plan</p>
@@ -51,7 +63,6 @@ const SprintCalculator = () => {
                                         <CardDescription>{sprint.description}</CardDescription>
                                     </CardHeader>
                                     <CardContent>
-                                        {/* <p>{sprint.features.map((feature: string) => feature).join(", ")}</p> */}
                                         <ul className="list-disc list-inside">
                                             {sprint.features.map((feature: string) => (
                                                 <li key={feature}>{feature}</li>
@@ -66,7 +77,7 @@ const SprintCalculator = () => {
                 )}
             </CardContent>
             <CardFooter className="flex justify-center">
-                <Button disabled={cart.length === 0} onClick={handleGeneratePlan}>
+                <Button disabled={cart.length === 0 || description.length === 0} onClick={handleGeneratePlan}>
                     <Sparkles className="w-4 h-4" />
                     Generate Plan
                 </Button>
